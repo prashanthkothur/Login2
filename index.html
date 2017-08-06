@@ -7,143 +7,51 @@
     <script src="js/underscore.js"></script>
     <script src="js/backbone.js"></script>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="css/index.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
 </head>
 <body>
-<div id="divClient">
-    UserName <input type="text" id="txtIdClient" placeholder="Username"><br /><br />
-    Password : <input type="password" id="txtNomClient" placeholder="Paasword"><br /><br />
-    <button id="cmdAddClient">REGISTER</button>
-    <button id="login">Login</button>
-    <br>
-    <ul id="listeClient"></ul>
+<div id ="divTwitterFeed">
+    <div id="divClientLogin">
+        UserName <input type="text" id="txtIdClient" placeholder="Username"><br /><br />
+        Password : <input type="password" id="txtNomClient" placeholder="Paasword"><br /><br />
+        <button id="cmdAddClient">REGISTER</button>
+        <button id="login">Login</button>
+        <br>
+        <ul id="listeClient"></ul>
+    </div>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+    <div class="row hide">
+       <div class="col-md-4"></div>
+       <div class="container">
+          <div class="col-md-4">
+             <div class="panel panel-danger">
+                <div class="panel-heading">               
+                   <h3 class="panel-title"><i class="fa fa-twitter-square" aria-hidden="true"></i>
+                      Tweets by Salesforce
+                   </h3>
+                </div>
+                 <div> 
+                    <input type="text" id="txtSearch" placeholder="Search for something..">                
+                </div>
+                <div class="panel-body">               
+                   
+                </div>
+             </div>
+          </div>
+       </div>
+       <div class="col-md-4">
+       </div>
+    </div>
 </div>
+
+
+
+
 </body>
-<script>
-    var reg_name, reg_pass;
-    var Client = Backbone.Model.extend({
-        defaults: {
-            name: null,
-            pwd: null
-        },
-        initialize: function () {
-            console.log("initialize client");
-        }
-    });
-    var ClientsCollection = Backbone.Collection.extend({
-        model: Client,
-        initialize: function () {
-            console.log("initialize clients collection");
-            this.bind("add", function (model) { console.log("Add", model.get('id'), model); });
-            this.bind("remove", function (el) { console.log("Remove", el.get('id'), el); });
-        }
-    });
-    var ClientView = Backbone.View.extend({
-        el: $("#divClient"), /* Utilisation de zepto pour lier ClientView au DOM */
-        initialize: function () {
-            var that = this;
-            this.listeClients = new ClientsCollection();
-            this.listClients = new ClientsCollection();
-            this.listeClients.bind("add", function (model) {
-                that.addClientToList(model);
-            });
-            this.listClients.bind("add", function (model) {
-                that.addLoginToList(model);
-            });
-        },
-        events: {
-            'click #cmdAddClient': 'cmdAddClient_Click',
-            'click #login': 'login'
-        },
-        cmdAddClient_Click: function () {
-            var tmpClient = new Client({
-                name: $("#txtIdClient").val(),
-                pwd: $("#txtNomClient").val(),
-            });
-            this.listeClients.add(tmpClient);
-        },        
-        addClientToList: function (model) {
-            reg_name = model.get('name');
-            reg_pass = model.get('pwd');
-            $("#listeClient").html("<font size=5 color=green>You are Successfully Registered, Now you can Login</font>");
-        },
-        addLoginToList: function (model) {;
-            if (model.get('name') == reg_name && model.get('pwd') == reg_pass) {
-                $("#divClient").html("<font size=4 color=blue>Login sucessfull</font>");
-            }
-            else {
-                $("#listeClient").html("<font size=5 color=green>Failed Logged in, Retry</font>");
-            }
-        },
-        fetchTwitterFeed() {
-            var username = reg_name;
-            var password = reg_pass;
-            var compositeKey = username + ":"+password;
-            var basic_oauthToken = this.b64EncodeUnicode(compositeKey);
-            $.ajax({
-                'type': 'GET',
-                'headers': {'Authorization': 'Basic ' + basic_oauthToken},
-                'url': "http://localhost:4000/login/",                
-                'crossDomain': 'true',
-                //'data': {'method': 'getQuote','format': 'jsonp','lang': 'en'},
-                'dataType': 'jsonp',
-                'jsonp': 'false',
-                'jsonpCallback': 'myJsonMethod',
-                //'jsonpCallback': function(jsondata) {
-                                    //if ( jsondata != undefined ) { console.log(jsondata)};
-                //                },
-                'contentType': 'application/json;charset=utf-8',
-                'success': function (response) {                    
-                    console.log(response);
-                    //var html = this.generateTweetsHtml(response);
-                    var currentTweets = response.statuses;
-                    var htmlValue = '<table>';
-                    currentTweets.forEach(function(tweet) {
-                        htmlValue = htmlValue + '<tr><td>'+tweet.user.name+'</td></tr>'+'<tr><td>'+tweet.user.name+'</td></tr>'+'<tr><td>'+tweet.user.screen_name+'</td></tr>';
-                        htmlValue = htmlValue +'<tr><td>'+tweet.text+'</td></tr>'+'<tr><td>'+tweet.retweet_count+'</td></tr>'+ '<tr><td>'+tweet.created_at+'</td></tr>';
-                    });
-                    htmlValue = htmlValue+'</table>';
-
-                    $("#divClient").html(htmlValue);                
-                },
-                'error': function (response) {
-                    console.log(response);                    
-                }
-            }, this);
-        },
-        b64EncodeUnicode(str) {
-            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
-                return String.fromCharCode('0x' + p1);
-            }));
-        },
-        login: function () {
-            var tmplogin = new Client({
-                name: $("#txtIdClient").val(),
-                pwd: $("#txtNomClient").val(),
-            });
-            this.listClients.add(tmplogin);
-            this.fetchTwitterFeed();
-        },
-        myJsonMethod: function(jsondata) {
-            console.log(jsondata);
-        },
-        generateTweetsHtml: function(responseObj) {
-            var currentTweets = responseObj.statuses;
-            var htmlValue = '<table>';
-            currentTweets.forEach(function(tweet) {
-                htmlValue = htmlValue + '<tr><td>'+tweet.user.name+'</td></tr>'+'<tr><td>'+tweet.user.name+'</td></tr>'+'<tr><td>'+tweet.user.screen_name+'</td></tr>';
-                htmlValue = htmlValue +'<tr><td>'+tweet.text+'</td></tr>'+'<tr><td>'+tweet.retweet_count+'</td></tr>'+ '<tr><td>'+tweet.created_at+'</td></tr>';
-            });
-            htmlValue = htmlValue+'</table>';
-            return htmlValue;
-        }
-
-
-
-    });
-    var clientView = new ClientView();
-    Backbone.history.start();
-
-
-
-</script>
+<script src="js/Login.js"></script>
 </html>
