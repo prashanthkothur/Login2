@@ -19,11 +19,7 @@
  margin-top: 25px;
 }
 
-.row {
-    margin: 0 auto;
-    text-align: left;
-    width: 800px;
-}
+
 
 .col-md-4 {
 	width: 50%;
@@ -33,8 +29,8 @@
 	display:  none;
 }
 
-.panel .panel-danger {
-	width:  600px;
+.panel-danger {
+	width:  600px ! important;
 }
 
 .panel-heading h3 {
@@ -51,6 +47,8 @@
     border: 1px solid #ddd; /* Add a grey border */
     margin-bottom: 12px; /* Add some space below the input */
     background-size: 25px;
+    height: 50px;
+
 }
 
 * {

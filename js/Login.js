@@ -26,7 +26,8 @@ var reg_name, reg_pass;
                 that.addClientToList(model);
             });
             this.listClients.bind("add", function (model) {
-                that.addLoginToList(model);
+                //supressed for now to skip registration process
+                //that.addLoginToList(model);
             });
         },
         events: {
@@ -60,8 +61,8 @@ var reg_name, reg_pass;
           this.fetchTwitterFeed(searchText) 
         },
         fetchTwitterFeed: function (searchText) {
-            var username = reg_name;
-            var password = reg_pass;
+            var username = this.listClients.models[0].get("name");
+            var password = this.listClients.models[0].get("pwd");
             var compositeKey = username + ":"+password;
             var basic_oauthToken = this.b64EncodeUnicode(compositeKey);
             var url;
@@ -91,17 +92,23 @@ var reg_name, reg_pass;
                     var currentTweets = response.statuses;
                     var htmlValue = '<table>';
                     currentTweets.forEach(function(tweet) {
-                        htmlValue = htmlValue + '<tr><td>'+tweet.user.name+'</td></tr>'+'<tr><td>'+tweet.user.name+'</td></tr>'+'<tr><td>'+tweet.user.screen_name+'</td></tr>';
-                        htmlValue = htmlValue +'<tr><td>'+tweet.text+'</td></tr>'+'<tr><td>'+tweet.retweet_count+'</td></tr>'+ '<tr><td>'+tweet.created_at+'</td></tr>';
-                    });
+                        htmlValue = htmlValue + '<tr><td style="background-image:url('+ tweet.user.profile_image_url + ');background-repeat:no-repeat;width: 50px;"</td>';
+                        htmlValue = htmlValue + '<td><table><tr><td><lable><b>' + tweet.user.name + '</b></lable>&nbsp;&nbsp;<lable>@'+tweet.user.screen_name + '</lable></td></tr>';
+                        htmlValue = htmlValue + '<tr><td>' + tweet.text + '</td></tr>';
+                        htmlValue = htmlValue + '<tr><td>' + tweet.created_at+ '</td></tr>';
+                        htmlValue = htmlValue + '<tr><td><lable>Retweet Count:&nbsp;</lable>' + tweet.retweet_count + '</td></tr></table></td></tr>';
+                        //htmlValue = htmlValue + '<tr><td>'+tweet.user.name+'</td>'+'<td>'+tweet.user.name+'</td><'+'<td>'+tweet.user.screen_name+'</td></tr>';
+                        //htmlValue = htmlValue +'<tr><td>'+tweet.text+'</td></tr>'+'<tr><td>'+tweet.retweet_count+'</td></tr>'+ '<tr><td>'+tweet.created_at+'</td></tr>';
+                    }, this);
                     htmlValue = htmlValue+'</table>';
 
                     $(".panel-body").html(htmlValue);
                     $("#divClientLogin").addClass('hide');
                     $(".row").removeClass('hide');                
                 },
-                'error': function (response) {
+                'error': function (response) {                    
                     console.log(response);                    
+                    $("#listeClient").html("<font size=5 color=green>Failed Logged in, Retry</font>");
                 }
             }, this);
         },
@@ -115,6 +122,7 @@ var reg_name, reg_pass;
                 name: $("#txtIdClient").val(),
                 pwd: $("#txtNomClient").val(),
             });
+            this.listClients.reset();
             this.listClients.add(tmplogin);
             this.fetchTwitterFeed();
         },
@@ -130,6 +138,16 @@ var reg_name, reg_pass;
             });
             htmlValue = htmlValue+'</table>';
             return htmlValue;
+        },
+        formatDate: function (date) {
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var ampm = hours >= 12 ? 'pm' : 'am';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            minutes = minutes < 10 ? '0'+minutes : minutes;
+            var strTime = hours + ':' + minutes + ' ' + ampm;
+            return date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear() + " " + strTime;
         }
 
 
