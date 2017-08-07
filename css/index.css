@@ -19,8 +19,6 @@
  margin-top: 25px;
 }
 
-
-
 .col-md-4 {
 	width: 50%;
 }
@@ -53,4 +51,9 @@
 
 * {
   box-sizing: border-box;
+}
+
+#divClientLogin {
+	margin-left: 550px;
+    margin-top: 50px;
 }

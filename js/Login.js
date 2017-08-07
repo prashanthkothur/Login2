@@ -26,8 +26,8 @@ var reg_name, reg_pass;
                 that.addClientToList(model);
             });
             this.listClients.bind("add", function (model) {
-                //supressed for now to skip registration process
-                //that.addLoginToList(model);
+            //supressed for now to skip registration process
+            //that.addLoginToList(model);
             });
         },
         events: {
@@ -78,13 +78,9 @@ var reg_name, reg_pass;
                 'headers': {'Authorization': 'Basic ' + basic_oauthToken},
                 'url': url,                
                 'crossDomain': 'true',
-                //'data': {'method': 'getQuote','format': 'jsonp','lang': 'en'},
                 'dataType': 'jsonp',
                 'jsonp': 'false',
                 'jsonpCallback': 'myJsonMethod',
-                //'jsonpCallback': function(jsondata) {
-                                    //if ( jsondata != undefined ) { console.log(jsondata)};
-                //                },
                 'contentType': 'application/json;charset=utf-8',
                 'success': function (response) {                    
                     console.log(response);
@@ -97,8 +93,6 @@ var reg_name, reg_pass;
                         htmlValue = htmlValue + '<tr><td>' + tweet.text + '</td></tr>';
                         htmlValue = htmlValue + '<tr><td>' + tweet.created_at+ '</td></tr>';
                         htmlValue = htmlValue + '<tr><td><lable>Retweet Count:&nbsp;</lable>' + tweet.retweet_count + '</td></tr></table></td></tr>';
-                        //htmlValue = htmlValue + '<tr><td>'+tweet.user.name+'</td>'+'<td>'+tweet.user.name+'</td><'+'<td>'+tweet.user.screen_name+'</td></tr>';
-                        //htmlValue = htmlValue +'<tr><td>'+tweet.text+'</td></tr>'+'<tr><td>'+tweet.retweet_count+'</td></tr>'+ '<tr><td>'+tweet.created_at+'</td></tr>';
                     }, this);
                     htmlValue = htmlValue+'</table>';
 
@@ -118,6 +112,7 @@ var reg_name, reg_pass;
             }));
         },
         login: function () {
+            var self = this;
             var tmplogin = new Client({
                 name: $("#txtIdClient").val(),
                 pwd: $("#txtNomClient").val(),
@@ -125,6 +120,13 @@ var reg_name, reg_pass;
             this.listClients.reset();
             this.listClients.add(tmplogin);
             this.fetchTwitterFeed();
+
+            //Setting the timer to fetch the twitter feed for every minute.
+            /*
+            setInterval(function() {
+                self.fetchTwitterFeed();
+            }, 3600000000);
+            */
         },
         myJsonMethod: function(jsondata) {
             console.log(jsondata);
@@ -149,10 +151,10 @@ var reg_name, reg_pass;
             var strTime = hours + ':' + minutes + ' ' + ampm;
             return date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear() + " " + strTime;
         }
-
-
-
     });
     var clientView = new ClientView();
     Backbone.history.start();
-
+    /*window.setInterval(function () {
+        clientView.fetchTwitterFeed();
+    }, 2000)
+    */
