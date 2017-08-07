@@ -17,7 +17,7 @@ var reg_name, reg_pass;
         }
     });
     var ClientView = Backbone.View.extend({
-        el: $("#divTwitterFeed"), /* Utilisation de zepto pour lier ClientView au DOM */
+        el: $("#divTwitterFeed"), 
         initialize: function () {
             var that = this;
             this.listeClients = new ClientsCollection();
@@ -82,28 +82,19 @@ var reg_name, reg_pass;
                 'jsonp': 'false',
                 'jsonpCallback': 'myJsonMethod',
                 'contentType': 'application/json;charset=utf-8',
-                'success': function (response) {                    
+                'success': _.bind(function (response, status, xhr) {                    
                     console.log(response);
-                    //var html = this.generateTweetsHtml(response);
-                    var currentTweets = response.statuses;
-                    var htmlValue = '<table>';
-                    currentTweets.forEach(function(tweet) {
-                        htmlValue = htmlValue + '<tr><td style="background-image:url('+ tweet.user.profile_image_url + ');background-repeat:no-repeat;width: 50px;"</td>';
-                        htmlValue = htmlValue + '<td><table><tr><td><lable><b>' + tweet.user.name + '</b></lable>&nbsp;&nbsp;<lable>@'+tweet.user.screen_name + '</lable></td></tr>';
-                        htmlValue = htmlValue + '<tr><td>' + tweet.text + '</td></tr>';
-                        htmlValue = htmlValue + '<tr><td>' + tweet.created_at+ '</td></tr>';
-                        htmlValue = htmlValue + '<tr><td><lable>Retweet Count:&nbsp;</lable>' + tweet.retweet_count + '</td></tr></table></td></tr>';
-                    }, this);
-                    htmlValue = htmlValue+'</table>';
+                    var html = this.generateTweetsHtml(response) +'</table>';                    
+                    var htmlValue = '<table>' + this.generateTweetsHtml(response);                    
 
                     $(".panel-body").html(htmlValue);
                     $("#divClientLogin").addClass('hide');
                     $(".row").removeClass('hide');                
-                },
-                'error': function (response) {                    
+                },this),
+                'error': _.bind(function (response, status, xhr) {                    
                     console.log(response);                    
                     $("#listeClient").html("<font size=5 color=green>Failed Logged in, Retry</font>");
-                }
+                },this),
             }, this);
         },
         b64EncodeUnicode(str) {
@@ -121,12 +112,11 @@ var reg_name, reg_pass;
             this.listClients.add(tmplogin);
             this.fetchTwitterFeed();
 
-            //Setting the timer to fetch the twitter feed for every minute.
-            /*
+            //Setting the timer to fetch the twitter feed for every minute.            
             setInterval(function() {
                 self.fetchTwitterFeed();
-            }, 3600000000);
-            */
+            }, 60000);
+            
         },
         myJsonMethod: function(jsondata) {
             console.log(jsondata);
@@ -135,8 +125,11 @@ var reg_name, reg_pass;
             var currentTweets = responseObj.statuses;
             var htmlValue = '<table>';
             currentTweets.forEach(function(tweet) {
-                htmlValue = htmlValue + '<tr><td>'+tweet.user.name+'</td></tr>'+'<tr><td>'+tweet.user.name+'</td></tr>'+'<tr><td>'+tweet.user.screen_name+'</td></tr>';
-                htmlValue = htmlValue +'<tr><td>'+tweet.text+'</td></tr>'+'<tr><td>'+tweet.retweet_count+'</td></tr>'+ '<tr><td>'+tweet.created_at+'</td></tr>';
+                htmlValue = htmlValue + '<tr><td style="background-image:url('+ tweet.user.profile_image_url + ');background-repeat:no-repeat;width: 50px;"</td>';
+                htmlValue = htmlValue + '<td><table><tr><td><lable><b>' + tweet.user.name + '</b></lable>&nbsp;&nbsp;<lable>@'+tweet.user.screen_name + '</lable></td></tr>';
+                htmlValue = htmlValue + '<tr><td>' + tweet.text + '</td></tr>';
+                htmlValue = htmlValue + '<tr><td>' + tweet.created_at+ '</td></tr>';
+                htmlValue = htmlValue + '<tr><td><lable>Retweet Count:&nbsp;</lable>' + tweet.retweet_count + '</td></tr></table></td></tr>';
             });
             htmlValue = htmlValue+'</table>';
             return htmlValue;
@@ -154,7 +147,3 @@ var reg_name, reg_pass;
     });
     var clientView = new ClientView();
     Backbone.history.start();
-    /*window.setInterval(function () {
-        clientView.fetchTwitterFeed();
-    }, 2000)
-    */
